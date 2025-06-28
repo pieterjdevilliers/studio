@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
-import { Shield, Settings, Save, Database, Mail, Security } from "lucide-react";
+import { Shield, Settings, Save, Database, Mail, Section as Security } from "lucide-react";
 
 export default function SystemSettingsPage() {
   const { user, addAuditLog } = useAuth();
