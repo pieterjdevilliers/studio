@@ -6,10 +6,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { ArrowLeft, Check, Edit3, Eye, FileText, MessageSquare, Download, ShieldAlert, UserCircle2, X } from "lucide-react";
 import { useAuth } from "@/hooks/use-auth";
+import { useChat } from "@/contexts/chat-context";
 import { RiskAssessment } from "./risk-assessment";
 import Image from "next/image";
 import { Separator } from "@/components/ui/separator";
 import { type SuggestRiskLevelOutput } from "@/ai/flows/suggest-risk-level";
+import { useToast } from "@/hooks/use-toast";
 
 interface CaseDetailsProps {
   onBack: () => void;
@@ -17,6 +19,8 @@ interface CaseDetailsProps {
 
 export function CaseDetails({ onBack }: CaseDetailsProps) {
   const { activeCase, updateCase, users } = useAuth();
+  const { createConversation, setActiveConversation } = useChat();
+  const { toast } = useToast();
 
   if (!activeCase) {
     return (
@@ -49,6 +53,30 @@ export function CaseDetails({ onBack }: CaseDetailsProps) {
       updatedAt: new Date().toISOString(),
     };
     updateCase(updatedCaseData);
+  };
+
+  const handleStartCaseDiscussion = async () => {
+    try {
+      const conversation = await createConversation(
+        "case",
+        [activeCase.clientId, activeCase.assignedStaffId].filter(Boolean) as string[],
+        `Case Discussion - ${activeCase.clientName}`,
+        undefined,
+        activeCase.id
+      );
+      
+      setActiveConversation(conversation);
+      toast({
+        title: "Case Discussion Started",
+        description: "A new conversation has been created for this case.",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to start case discussion.",
+        variant: "destructive",
+      });
+    }
   };
   
   const renderFormData = (formData: Partial<ClientFormData>) => {
@@ -157,8 +185,8 @@ export function CaseDetails({ onBack }: CaseDetailsProps) {
                 <Button className="w-full justify-start" variant="outline" onClick={() => handleStatusChange("Additional Info Required")} disabled={activeCase.status === "Additional Info Required"}>
                   <Edit3 className="mr-2 h-4 w-4 text-yellow-500" /> Request Additional Info
                 </Button>
-                <Button className="w-full justify-start" variant="outline" disabled>
-                  <MessageSquare className="mr-2 h-4 w-4" /> Send Message to Client
+                <Button className="w-full justify-start" variant="outline" onClick={handleStartCaseDiscussion}>
+                  <MessageSquare className="mr-2 h-4 w-4" /> Start Case Discussion
                 </Button>
               </CardContent>
             </Card>

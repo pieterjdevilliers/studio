@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Loader2, LayoutDashboard, FileText, Users, Settings, LogOut, FilePlus, UserCheck, Shield, ClipboardList, UserCog } from "lucide-react";
+import { Loader2, LayoutDashboard, FileText, Users, Settings, LogOut, FilePlus, UserCheck, Shield, ClipboardList, UserCog, MessageSquare } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/sidebar";
 import { UserNav } from "./user-nav";
 import { Logo } from "./logo";
+import { ChatWidget } from "@/components/chat/chat-widget";
 import Link from "next/link";
 import { Button } from "../ui/button";
 
@@ -33,6 +34,7 @@ interface NavItem {
 const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["client", "staff", "admin"] },
   { href: "/onboarding", label: "My Onboarding", icon: FilePlus, roles: ["client"] },
+  { href: "/messages", label: "Messages", icon: MessageSquare, roles: ["client", "staff", "admin"] },
   { href: "/cases", label: "Client Cases", icon: FileText, roles: ["staff", "admin"] },
   { href: "/admin/users", label: "User Management", icon: Users, roles: ["admin"] },
   { href: "/admin/clients", label: "Client Management", icon: UserCog, roles: ["admin"] },
@@ -68,6 +70,7 @@ export function AuthenticatedLayout({ children }: { children: ReactNode }) {
         <main className="flex-1 p-4 md:p-6 lg:p-8 overflow-y-auto">
           {children}
         </main>
+        <ChatWidget />
       </SidebarInset>
     </SidebarProvider>
   );
