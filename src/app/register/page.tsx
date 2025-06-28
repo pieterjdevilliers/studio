@@ -11,18 +11,22 @@ export default function RegisterPage() {
   const router = useRouter();
 
   useEffect(() => {
-    // For development: always redirect to dashboard
-    if (!isLoading) {
+    if (!isLoading && isAuthenticated) {
       router.push("/dashboard");
     }
-  }, [isLoading, router]);
+  }, [isAuthenticated, isLoading, router]);
 
-  // For development: show loading while redirecting
+  if (isLoading || (!isLoading && isAuthenticated)) {
+     return (
+      <div className="flex min-h-screen flex-col items-center justify-center bg-secondary p-4">
+        <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-secondary p-4">
-      <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      <p className="mt-4 text-lg text-primary">Redirecting to FICA Flow Dashboard...</p>
-      <p className="mt-2 text-sm text-muted-foreground">Development Mode - Authentication Disabled</p>
+      <RegisterForm />
     </div>
   );
 }

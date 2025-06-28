@@ -223,9 +223,8 @@ const MOCK_STAFF_PROFILES: StaffProfile[] = [
 ];
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // For development: automatically log in as admin user
-  const [user, setUser] = useState<User | null>(MOCK_USERS[0]); // Default to admin
-  const [isLoading, setIsLoading] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
   // Mock data state
@@ -238,6 +237,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [activeCase, setActiveCase] = useState<ClientCase | null>(null);
 
   useEffect(() => {
+    // Check for saved user in localStorage (basic session persistence)
+    const savedUser = localStorage.getItem("ficaUser");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
     setIsLoading(false);
   }, []);
 
@@ -312,9 +316,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         details: `User ${user.name} logged out`,
       });
     }
-    setUser(MOCK_USERS[0]);
+    setUser(null);
     setActiveCase(null);
-    router.push("/dashboard");
+    localStorage.removeItem("ficaUser");
+    router.push("/");
   };
 
   const switchUser = useCallback((userId: string) => {
@@ -513,7 +518,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     <AuthContext.Provider
       value={{
         user,
-        isAuthenticated: true,
+        isAuthenticated: !!user,
         isLoading,
         login,
         logout,

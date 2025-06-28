@@ -18,10 +18,10 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 import { useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Loader2, UserCheck } from "lucide-react";
 
 export function LoginForm() {
-  const { login } = useAuth();
+  const { login, users, switchUser } = useAuth();
   const { toast } = useToast();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -51,56 +51,92 @@ export function LoginForm() {
     setIsLoading(false);
   }
 
+  const handleQuickLogin = (userId: string) => {
+    switchUser(userId);
+    toast({
+      title: "Login Successful",
+      description: "Welcome back!",
+    });
+  };
+
   return (
-    <Card className="w-full max-w-md shadow-xl">
-      <CardHeader>
-        <CardTitle className="text-3xl font-bold text-center text-primary">FICA Flow</CardTitle>
-        <CardDescription className="text-center">
-          Sign in to manage your FICA onboarding.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input placeholder="you@example.com" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Password</FormLabel>
-                  <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              Sign In
-            </Button>
-          </form>
-        </Form>
-        <p className="mt-6 text-center text-sm">
-          Don&apos;t have an account?{" "}
-          <Link href="/register" className="font-medium text-primary hover:underline">
-            Register here
-          </Link>
-        </p>
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      <Card className="w-full max-w-md shadow-xl">
+        <CardHeader>
+          <CardTitle className="text-3xl font-bold text-center text-primary">FICA Flow</CardTitle>
+          <CardDescription className="text-center">
+            Sign in to manage your FICA onboarding.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input placeholder="you@example.com" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input type="password" placeholder="••••••••" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" className="w-full" disabled={isLoading}>
+                {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Sign In
+              </Button>
+            </form>
+          </Form>
+          <p className="mt-6 text-center text-sm">
+            Don&apos;t have an account?{" "}
+            <Link href="/register" className="font-medium text-primary hover:underline">
+              Register here
+            </Link>
+          </p>
+        </CardContent>
+      </Card>
+
+      {/* Development Quick Login */}
+      <Card className="w-full max-w-md shadow-xl border-yellow-200 bg-yellow-50">
+        <CardHeader>
+          <CardTitle className="text-lg text-center text-yellow-800">Development Mode</CardTitle>
+          <CardDescription className="text-center text-yellow-700">
+            Quick login as test users (no password required)
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-2">
+            {users.map((user) => (
+              <Button
+                key={user.id}
+                variant="outline"
+                className="w-full justify-start"
+                onClick={() => handleQuickLogin(user.id)}
+              >
+                <UserCheck className="mr-2 h-4 w-4" />
+                {user.name} ({user.role})
+                <span className="ml-auto text-xs text-muted-foreground">{user.email}</span>
+              </Button>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 }

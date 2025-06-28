@@ -22,7 +22,6 @@ import { UserNav } from "./user-nav";
 import { Logo } from "./logo";
 import Link from "next/link";
 import { Button } from "../ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface NavItem {
   href: string;
@@ -46,7 +45,13 @@ export function AuthenticatedLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const router = useRouter();
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, isLoading, router]);
+
+  if (isLoading || !isAuthenticated) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-secondary">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -74,40 +79,11 @@ function AppHeader() {
     <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 px-4 backdrop-blur md:px-6">
       <div className="flex items-center">
         {isMobile && <SidebarTrigger />}
-        <DevUserSwitcher />
       </div>
       <div className="flex items-center gap-4">
         <UserNav />
       </div>
     </header>
-  );
-}
-
-function DevUserSwitcher() {
-  const { user, users, switchUser } = useAuth();
-  
-  return (
-    <Card className="ml-4 border-yellow-200 bg-yellow-50">
-      <CardHeader className="pb-2">
-        <CardTitle className="text-sm text-yellow-800">Development Mode</CardTitle>
-      </CardHeader>
-      <CardContent className="pt-0">
-        <div className="flex gap-2 flex-wrap">
-          {users.map((u) => (
-            <Button
-              key={u.id}
-              size="sm"
-              variant={user?.id === u.id ? "default" : "outline"}
-              onClick={() => switchUser(u.id)}
-              className="text-xs"
-            >
-              <UserCheck className="mr-1 h-3 w-3" />
-              {u.name} ({u.role})
-            </Button>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
   );
 }
 
@@ -145,9 +121,9 @@ function AppSidebar({ userRole, onLogout }: { userRole: "client" | "staff" | "ad
       <SidebarFooter>
          <SidebarMenu>
             <SidebarMenuItem>
-                <SidebarMenuButton onClick={onLogout} tooltip="Switch User">
+                <SidebarMenuButton onClick={onLogout} tooltip="Log Out">
                     <LogOut />
-                    <span>Switch User</span>
+                    <span>Log Out</span>
                 </SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarMenu>

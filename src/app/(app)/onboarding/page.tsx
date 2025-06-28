@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter } from "next/navigation";
 
 export default function OnboardingPage() {
-  const { user, cases, addCase, updateCase, switchUser } = useAuth();
+  const { user, cases, addCase, updateCase } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -29,13 +29,12 @@ export default function OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
 
-  // For development: ensure we have a client user
+  // Redirect non-client users
   useEffect(() => {
     if (user && user.role !== 'client') {
-      // Switch to a client user for onboarding
-      switchUser('client1');
+      router.push('/dashboard');
     }
-  }, [user, switchUser]);
+  }, [user, router]);
 
   // Initialize or load existing case
   useEffect(() => {
@@ -185,8 +184,9 @@ export default function OnboardingPage() {
     router.push("/dashboard");
   };
 
-  // For development: provide fallback user
-  const currentUser = user || { id: "dev-client", name: "Development Client", role: "client" };
+  if (!user || user.role !== 'client') {
+    return <p>Access Denied. Redirecting...</p>;
+  }
 
   const formProgress = currentCase?.status !== "Pending Submission" && currentCase?.status !== "Additional Info Required";
 

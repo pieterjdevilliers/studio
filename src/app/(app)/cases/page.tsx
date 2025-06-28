@@ -7,16 +7,15 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function CasesPage() {
-  const { user, isLoading, switchUser } = useAuth();
+  const { user, isLoading } = useAuth();
   const router = useRouter();
 
   useEffect(() => {
-    // For development: auto-switch to staff user if current user is not staff
     if (!isLoading && user && user.role !== 'staff') {
-      // Find a staff user and switch to them
-      switchUser('staff1'); // Switch to the default staff user
+      // Redirect non-staff users away from this page
+      router.push('/dashboard');
     }
-  }, [user, isLoading, switchUser]);
+  }, [user, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -26,6 +25,9 @@ export default function CasesPage() {
     );
   }
 
-  // For development: always show staff dashboard
+  if (!user || user.role !== 'staff') {
+    return <p>Access Denied. Redirecting...</p>;
+  }
+
   return <StaffDashboard />;
 }
