@@ -1,7 +1,7 @@
 "use client";
 
 import { useAuth } from "@/hooks/use-auth";
-import { StaffDashboard } from "@/components/dashboard/staff-dashboard";
+import { EnhancedStaffDashboard } from "@/components/dashboard/enhanced-staff-dashboard";
 import { Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
@@ -29,5 +29,5 @@ export default function CasesPage() {
     return <p>Access Denied. Redirecting...</p>;
   }
 
-  return <StaffDashboard />;
+  return <EnhancedStaffDashboard />;
 }
