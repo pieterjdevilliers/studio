@@ -46,8 +46,6 @@ export default function OnboardingPage() {
         setClientType(existingCase.clientType);
       }
     }
-    // Note: Removed searchParams handling to fix Next.js error
-    // Tab switching can be handled through UI interactions instead
   }, [user, cases]);
 
   // Update form fields and doc requirements when clientType changes
