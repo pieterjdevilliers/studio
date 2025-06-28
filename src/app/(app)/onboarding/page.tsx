@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ import { Loader2, Save, Send, CheckSquare, FileWarning } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useSearchParams } from "next/navigation";
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const { user, cases, addCase, updateCase, switchUser } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
@@ -266,5 +266,18 @@ export default function OnboardingPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex flex-1 items-center justify-center">
+        <Loader2 className="h-10 w-10 animate-spin text-primary" />
+        <p className="ml-2">Loading onboarding...</p>
+      </div>
+    }>
+      <OnboardingContent />
+    </Suspense>
   );
 }
