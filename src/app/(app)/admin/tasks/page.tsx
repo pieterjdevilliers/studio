@@ -207,12 +207,12 @@ export default function TaskManagementPage() {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="client" className="text-right">Related Client</Label>
-                <Select value={formData.clientId} onValueChange={(value) => setFormData({ ...formData, clientId: value })}>
+                <Select value={formData.clientId} onValueChange={(value) => setFormData({ ...formData, clientId: value === "none" ? "" : value })}>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select client (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No specific client</SelectItem>
+                    <SelectItem value="none">No specific client</SelectItem>
                     {clientUsers.map((client) => (
                       <SelectItem key={client.id} value={client.id}>
                         {client.name}
@@ -223,12 +223,12 @@ export default function TaskManagementPage() {
               </div>
               <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="case" className="text-right">Related Case</Label>
-                <Select value={formData.caseId} onValueChange={(value) => setFormData({ ...formData, caseId: value })}>
+                <Select value={formData.caseId} onValueChange={(value) => setFormData({ ...formData, caseId: value === "none" ? "" : value })}>
                   <SelectTrigger className="col-span-3">
                     <SelectValue placeholder="Select case (optional)" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">No specific case</SelectItem>
+                    <SelectItem value="none">No specific case</SelectItem>
                     {cases.map((caseItem) => (
                       <SelectItem key={caseItem.id} value={caseItem.id}>
                         {caseItem.clientName} - {caseItem.clientType}
