@@ -3,6 +3,7 @@
 import { useAuth } from "@/hooks/use-auth";
 import { ClientDashboard } from "@/components/dashboard/client-dashboard";
 import { StaffDashboard } from "@/components/dashboard/staff-dashboard";
+import { AdminDashboard } from "@/components/dashboard/admin-dashboard";
 import { Loader2 } from "lucide-react";
 
 export default function DashboardPage() {
@@ -23,6 +24,7 @@ export default function DashboardPage() {
     <>
       {currentUser.role === "client" && <ClientDashboard />}
       {currentUser.role === "staff" && <StaffDashboard />}
+      {currentUser.role === "admin" && <AdminDashboard />}
     </>
   );
 }

@@ -1,10 +1,16 @@
-export type UserRole = "client" | "staff"; // Simplified roles: OnboardingOfficer, ComplianceOfficer, Administrator are all 'staff'
+export type UserRole = "client" | "staff" | "admin";
 
 export interface User {
   id: string;
   email: string;
   role: UserRole;
   name?: string;
+  contactNumber?: string;
+  department?: string;
+  isActive?: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  createdBy?: string;
 }
 
 export type ClientType = "Individual" | "Company" | "Trust";
@@ -71,6 +77,7 @@ export interface ClientCase {
   formData: Partial<ClientFormData>;
   documents: DocumentUpload[];
   status: CaseStatus;
+  assignedStaffId?: string;
   createdAt: string; // ISO date string
   updatedAt: string; // ISO date string
   riskAssessment?: {
@@ -95,4 +102,64 @@ export interface DocumentRequirement {
   name: string; // e.g., 'Certified ID Copy'
   description: string;
   fileTypes: string[]; // e.g., ['application/pdf', 'image/jpeg', 'image/png']
+}
+
+// New types for administrative features
+export type TaskStatus = "pending" | "in-progress" | "completed" | "overdue";
+export type TaskPriority = "low" | "medium" | "high" | "urgent";
+
+export interface Task {
+  id: string;
+  title: string;
+  description: string;
+  assignedToId: string;
+  assignedById: string;
+  clientId?: string;
+  caseId?: string;
+  priority: TaskPriority;
+  status: TaskStatus;
+  dueDate: string;
+  createdAt: string;
+  updatedAt: string;
+  completedAt?: string;
+}
+
+export interface AuditLog {
+  id: string;
+  userId: string;
+  action: string;
+  entityType: "user" | "client" | "case" | "task" | "system";
+  entityId: string;
+  details: string;
+  timestamp: string;
+  ipAddress?: string;
+}
+
+export interface ClientProfile {
+  id: string;
+  userId: string;
+  businessType?: string;
+  industry?: string;
+  annualRevenue?: string;
+  numberOfEmployees?: string;
+  riskProfile?: "low" | "medium" | "high";
+  notes?: string;
+  assignedStaffId?: string;
+  onboardingStatus: "not-started" | "in-progress" | "completed" | "on-hold";
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StaffProfile {
+  id: string;
+  userId: string;
+  department: string;
+  position: string;
+  accessLevel: "basic" | "advanced" | "supervisor";
+  maxCaseLoad: number;
+  currentCaseLoad: number;
+  skills: string[];
+  availability: "available" | "busy" | "unavailable";
+  createdAt: string;
+  updatedAt: string;
 }

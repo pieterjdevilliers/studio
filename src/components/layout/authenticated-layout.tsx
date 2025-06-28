@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Loader2, LayoutDashboard, FileText, Users, Settings, LogOut, FilePlus, UserCheck } from "lucide-react";
+import { Loader2, LayoutDashboard, FileText, Users, Settings, LogOut, FilePlus, UserCheck, Shield, ClipboardList, UserCog } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -28,25 +28,23 @@ interface NavItem {
   href: string;
   label: string;
   icon: React.ElementType;
-  roles: ("client" | "staff")[];
+  roles: ("client" | "staff" | "admin")[];
 }
 
 const navItems: NavItem[] = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["client", "staff"] },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["client", "staff", "admin"] },
   { href: "/onboarding", label: "My Onboarding", icon: FilePlus, roles: ["client"] },
-  { href: "/cases", label: "Client Cases", icon: FileText, roles: ["staff"] },
+  { href: "/cases", label: "Client Cases", icon: FileText, roles: ["staff", "admin"] },
+  { href: "/admin/users", label: "User Management", icon: Users, roles: ["admin"] },
+  { href: "/admin/clients", label: "Client Management", icon: UserCog, roles: ["admin"] },
+  { href: "/admin/tasks", label: "Task Management", icon: ClipboardList, roles: ["admin"] },
+  { href: "/admin/audit", label: "Audit Logs", icon: Shield, roles: ["admin"] },
+  { href: "/admin/settings", label: "System Settings", icon: Settings, roles: ["admin"] },
 ];
 
 export function AuthenticatedLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const router = useRouter();
-
-  // For development: remove authentication checks
-  // useEffect(() => {
-  //   if (!isLoading && !isAuthenticated) {
-  //     router.push("/");
-  //   }
-  // }, [isAuthenticated, isLoading, router]);
 
   if (isLoading) {
     return (
@@ -57,7 +55,6 @@ export function AuthenticatedLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  // For development: always render the layout
   return (
     <SidebarProvider defaultOpen>
       <AppSidebar userRole={user?.role || "client"} onLogout={logout} />
@@ -114,7 +111,7 @@ function DevUserSwitcher() {
   );
 }
 
-function AppSidebar({ userRole, onLogout }: { userRole: "client" | "staff", onLogout: () => void }) {
+function AppSidebar({ userRole, onLogout }: { userRole: "client" | "staff" | "admin", onLogout: () => void }) {
   const { state } = useSidebar();
   const collapsed = state === "collapsed";
 
