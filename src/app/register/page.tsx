@@ -12,8 +12,10 @@ export default function RegisterPage() {
 
   useEffect(() => {
     // For development: always redirect to dashboard
-    router.push("/dashboard");
-  }, [router]);
+    if (!isLoading) {
+      router.push("/dashboard");
+    }
+  }, [isLoading, router]);
 
   // For development: show loading while redirecting
   return (
