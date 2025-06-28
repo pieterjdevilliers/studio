@@ -18,7 +18,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export default function OnboardingPage() {
-  const { user, cases, addCase, updateCase } = useAuth();
+  const { user, cases, addCase, updateCase, switchUser } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -30,6 +30,14 @@ export default function OnboardingPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
 
+  // For development: ensure we have a client user
+  useEffect(() => {
+    if (user && user.role !== 'client') {
+      // Switch to a client user for onboarding
+      switchUser('client1');
+    }
+  }, [user, switchUser]);
+
   // Initialize or load existing case
   useEffect(() => {
     if (user) {
@@ -37,14 +45,10 @@ export default function OnboardingPage() {
       if (existingCase) {
         setCurrentCase(existingCase);
         setClientType(existingCase.clientType);
-        // setSelectedDocs(existingCase.documents); // Documents are part of currentCase.documents
-      } else {
-        // Create a new pending case if none exists (or wait for type selection)
       }
     }
     const tabParam = searchParams.get("tab");
     if (tabParam === "documents") setActiveTab("documents");
-
   }, [user, cases, searchParams]);
 
   // Update form fields and doc requirements when clientType changes
@@ -59,7 +63,7 @@ export default function OnboardingPage() {
   }, [clientType]);
 
   const getCurrentSchema = useCallback(() => {
-    if (!clientType) return OnboardingFormSchema; // Fallback or handle error
+    if (!clientType) return OnboardingFormSchema;
     switch (clientType) {
       case "Individual": return IndividualSchema;
       case "Company": return CompanySchema;
@@ -70,7 +74,7 @@ export default function OnboardingPage() {
 
   const methods = useForm<OnboardingFormValues>({
     resolver: zodResolver(getCurrentSchema()),
-    defaultValues: currentCase?.formData || {}, // Populate with existing case data if available
+    defaultValues: currentCase?.formData || {},
   });
 
   // Reset form when client type or case changes
@@ -80,16 +84,14 @@ export default function OnboardingPage() {
     }
   }, [clientType, currentCase, methods]);
 
-
   const handleClientTypeSelect = (type: ClientType) => {
     setClientType(type);
     if (currentCase && currentCase.clientType !== type) {
-        // If type changes, potentially clear old form data or handle migration
         setCurrentCase(prev => ({
             ...(prev as ClientCase),
             clientType: type,
-            formData: { clientType: type }, // Reset form data for new type
-            documents: [], // Reset documents if type changes significantly
+            formData: { clientType: type },
+            documents: [],
             status: "Pending Submission",
             updatedAt: new Date().toISOString(),
         }));
@@ -106,7 +108,6 @@ export default function OnboardingPage() {
             updatedAt: new Date().toISOString(),
         };
         setCurrentCase(newClientCase);
-        // addCase(newClientCase); // Add case once saved, not on type selection
     }
   };
 
@@ -135,22 +136,19 @@ export default function OnboardingPage() {
         ...currentCase,
         clientType,
         formData: data,
-        // documents are already in currentCase.documents
         updatedAt: new Date().toISOString(),
     };
 
-    // If it's a new case, add it. Otherwise, update.
     if (cases.find(c => c.id === caseToSave.id)) {
         updateCase(caseToSave);
     } else {
         addCase(caseToSave);
     }
-    setCurrentCase(caseToSave); // ensure local state is also updated
+    setCurrentCase(caseToSave);
 
     toast({ title: "Progress Saved", description: "Your onboarding information has been saved." });
     setIsSubmitting(false);
   };
-
 
   const onSubmit = async (data: OnboardingFormValues) => {
     if (!user || !clientType || !currentCase) {
@@ -158,7 +156,6 @@ export default function OnboardingPage() {
       return;
     }
 
-    // Basic check for document requirements
     const requiredDocsMet = docRequirements.every(req => 
         currentCase.documents.some(doc => doc.id.startsWith(req.id))
     );
@@ -191,7 +188,8 @@ export default function OnboardingPage() {
     router.push("/dashboard");
   };
 
-  if (!user) return <p>Loading user data...</p>; // Or redirect
+  // For development: provide fallback user
+  const currentUser = user || { id: "dev-client", name: "Development Client", role: "client" };
 
   const formProgress = currentCase?.status !== "Pending Submission" && currentCase?.status !== "Additional Info Required";
 

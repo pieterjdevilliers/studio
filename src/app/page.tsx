@@ -11,23 +11,16 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) {
-      router.push("/dashboard");
-    }
-  }, [isAuthenticated, isLoading, router]);
+    // For development: always redirect to dashboard
+    router.push("/dashboard");
+  }, [router]);
 
-  if (isLoading || (!isLoading && isAuthenticated)) {
-    return (
-      <div className="flex min-h-screen flex-col items-center justify-center bg-secondary p-4">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        <p className="mt-4 text-lg text-primary">Loading FICA Flow...</p>
-      </div>
-    );
-  }
-
+  // For development: show loading while redirecting
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-secondary p-4">
-      <LoginForm />
+      <Loader2 className="h-12 w-12 animate-spin text-primary" />
+      <p className="mt-4 text-lg text-primary">Redirecting to FICA Flow Dashboard...</p>
+      <p className="mt-2 text-sm text-muted-foreground">Development Mode - Authentication Disabled</p>
     </div>
   );
 }

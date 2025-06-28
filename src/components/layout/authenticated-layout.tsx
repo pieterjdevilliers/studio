@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { useAuth } from "@/hooks/use-auth";
-import { Loader2, LayoutDashboard, FileText, Users, Settings, LogOut, FilePlus } from "lucide-react";
+import { Loader2, LayoutDashboard, FileText, Users, Settings, LogOut, FilePlus, UserCheck } from "lucide-react";
 import {
   SidebarProvider,
   Sidebar,
@@ -22,6 +22,7 @@ import { UserNav } from "./user-nav";
 import { Logo } from "./logo";
 import Link from "next/link";
 import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 interface NavItem {
   href: string;
@@ -34,21 +35,20 @@ const navItems: NavItem[] = [
   { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, roles: ["client", "staff"] },
   { href: "/onboarding", label: "My Onboarding", icon: FilePlus, roles: ["client"] },
   { href: "/cases", label: "Client Cases", icon: FileText, roles: ["staff"] },
-  // { href: "/users", label: "User Management", icon: Users, roles: ["staff"] }, // Example for future
-  // { href: "/settings", label: "Settings", icon: Settings, roles: ["client", "staff"] },
 ];
 
 export function AuthenticatedLayout({ children }: { children: ReactNode }) {
   const { isAuthenticated, isLoading, user, logout } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    if (!isLoading && !isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, isLoading, router]);
+  // For development: remove authentication checks
+  // useEffect(() => {
+  //   if (!isLoading && !isAuthenticated) {
+  //     router.push("/");
+  //   }
+  // }, [isAuthenticated, isLoading, router]);
 
-  if (isLoading || !isAuthenticated) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center bg-secondary">
         <Loader2 className="h-12 w-12 animate-spin text-primary" />
@@ -57,6 +57,7 @@ export function AuthenticatedLayout({ children }: { children: ReactNode }) {
     );
   }
 
+  // For development: always render the layout
   return (
     <SidebarProvider defaultOpen>
       <AppSidebar userRole={user?.role || "client"} onLogout={logout} />
@@ -76,12 +77,40 @@ function AppHeader() {
     <header className="sticky top-0 z-10 flex h-16 items-center justify-between border-b bg-background/80 px-4 backdrop-blur md:px-6">
       <div className="flex items-center">
         {isMobile && <SidebarTrigger />}
-        {/* Potentially breadcrumbs or page title here */}
+        <DevUserSwitcher />
       </div>
       <div className="flex items-center gap-4">
         <UserNav />
       </div>
     </header>
+  );
+}
+
+function DevUserSwitcher() {
+  const { user, users, switchUser } = useAuth();
+  
+  return (
+    <Card className="ml-4 border-yellow-200 bg-yellow-50">
+      <CardHeader className="pb-2">
+        <CardTitle className="text-sm text-yellow-800">Development Mode</CardTitle>
+      </CardHeader>
+      <CardContent className="pt-0">
+        <div className="flex gap-2 flex-wrap">
+          {users.map((u) => (
+            <Button
+              key={u.id}
+              size="sm"
+              variant={user?.id === u.id ? "default" : "outline"}
+              onClick={() => switchUser(u.id)}
+              className="text-xs"
+            >
+              <UserCheck className="mr-1 h-3 w-3" />
+              {u.name} ({u.role})
+            </Button>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 
@@ -119,9 +148,9 @@ function AppSidebar({ userRole, onLogout }: { userRole: "client" | "staff", onLo
       <SidebarFooter>
          <SidebarMenu>
             <SidebarMenuItem>
-                <SidebarMenuButton onClick={onLogout} tooltip="Log Out">
+                <SidebarMenuButton onClick={onLogout} tooltip="Switch User">
                     <LogOut />
-                    <span>Log Out</span>
+                    <span>Switch User</span>
                 </SidebarMenuButton>
             </SidebarMenuItem>
         </SidebarMenu>
