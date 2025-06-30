@@ -15,12 +15,14 @@ import { getFormFieldsForClientType, getDocumentRequirementsForClientType } from
 import type { ClientType, DocumentUpload, ClientCase, ClientFormData, DocumentRequirement, FormFieldConfig } from "@/types";
 import { Loader2, Save, Send, CheckSquare, FileWarning } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 
-export default function OnboardingPage() {
+function OnboardingContent() {
   const { user, cases, addCase, updateCase } = useAuth();
   const { toast } = useToast();
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [clientType, setClientType] = useState<ClientType | null>(null);
   const [currentCase, setCurrentCase] = useState<ClientCase | null>(null);
@@ -28,6 +30,19 @@ export default function OnboardingPage() {
   const [docRequirements, setDocRequirements] = useState<DocumentRequirement[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
+
+  // Handle search params safely
+  useEffect(() => {
+    try {
+      const tab = searchParams?.get("tab");
+      if (tab && (tab === "details" || tab === "documents")) {
+        setActiveTab(tab);
+      }
+    } catch (error) {
+      // Ignore search params errors
+      console.warn("Error reading search params:", error);
+    }
+  }, [searchParams]);
 
   // Redirect non-client users
   useEffect(() => {
@@ -263,5 +278,17 @@ export default function OnboardingPage() {
         </Card>
       )}
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    }>
+      <OnboardingContent />
+    </Suspense>
   );
 }
